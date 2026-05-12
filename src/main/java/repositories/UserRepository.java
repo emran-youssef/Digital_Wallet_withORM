@@ -7,88 +7,63 @@ import jakarta.persistence.NoResultException;
 
 public class UserRepository {
 
-    public void saveUser(User user){
-        EntityManager em = HibernateUtil.getEntityManager();
-        try {
-            em.getTransaction().begin();
+        public void save(EntityManager em, User user) {
             em.persist(user);
-            em.getTransaction().commit();
-        }catch (Exception e)
-        {
-            if(em.getTransaction().isActive()){
-                em.getTransaction().rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
         }
-    }
 
-    public User findById(Long id){
-        EntityManager em = HibernateUtil.getEntityManager();
-        try {
+        public User findById(EntityManager em, Long id) {
             return em.find(User.class, id);
-
-        } catch (Exception e) {
-            throw e;
-        }finally {
-            em.close();
         }
-    }
 
-    public User findByUsername(String username){
-        EntityManager em = HibernateUtil.getEntityManager();
+        public User findByUsername(EntityManager em, String username) {
+            try {
+                return em.createQuery(
+                                "SELECT u FROM User u WHERE u.username = :username",
+                                User.class
+                        )
+                        .setParameter("username", username)
+                        .getSingleResult();
 
-        try {
-            return em.createQuery("select u from users u where username := username", User.class)
+            } catch (NoResultException e) {
+                return null;
+            }
+        }
+
+        public User findByEmail(EntityManager em, String email) {
+            try {
+                return em.createQuery(
+                                "SELECT u FROM User u WHERE u.email = :email",
+                                User.class
+                        )
+                        .setParameter("email", email)
+                        .getSingleResult();
+
+            } catch (NoResultException e) {
+                return null;
+            }
+        }
+
+        public boolean existsByUsername(EntityManager em, String username) {
+            Long count = em.createQuery(
+                            "SELECT COUNT(u) FROM User u WHERE u.username = :username",
+                            Long.class
+                    )
                     .setParameter("username", username)
                     .getSingleResult();
 
-        } catch (NoResultException e) {
-            return null;
-        }finally {
-            em.close();
+            return count > 0;
         }
-    }
 
-    public User findByEmail(String email) {
-        EntityManager em = HibernateUtil.getEntityManager();
-        try {
-            return em.createQuery(
-                            "SELECT u FROM User u WHERE u.email = :email", User.class)
+        public boolean existsByEmail(EntityManager em, String email) {
+            Long count = em.createQuery(
+                            "SELECT COUNT(u) FROM User u WHERE u.email = :email",
+                            Long.class
+                    )
                     .setParameter("email", email)
                     .getSingleResult();
-        } catch (NoResultException e) {
-            return null;
-        } finally {
-            em.close();
-        }
-    }
 
-    public boolean existsByUsername(String username) {
-        EntityManager em = HibernateUtil.getEntityManager();
-        try {
-            Long count = em.createQuery(
-                            "SELECT COUNT(u) FROM User u WHERE u.username = :username", Long.class)
-                    .setParameter("username", username)
-                    .getSingleResult();
             return count > 0;
-        } finally {
-            em.close();
         }
     }
 
-    public boolean existsByEmail(String email) {
-        EntityManager em = HibernateUtil.getEntityManager();
-        try {
-            Long count = em.createQuery(
-                            "SELECT COUNT(u) FROM User u WHERE u.email = :email", Long.class)
-                    .setParameter("email", email)
-                    .getSingleResult();
-            return count > 0;
-        } finally {
-            em.close();
-        }
-    }
 
-}

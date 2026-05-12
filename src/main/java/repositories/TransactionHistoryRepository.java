@@ -3,62 +3,41 @@ package repositories;
 import config.HibernateUtil;
 import entities.TransactionHistory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 
 import java.util.List;
 
 public class TransactionHistoryRepository {
 
-    public void save(TransactionHistory history) {
-        EntityManager em = HibernateUtil.getEntityManager();
-        try {
-            em.getTransaction().begin();
-            em.persist(history);
-            em.getTransaction().commit();
-        } catch (Exception e) {
-            if (em.getTransaction().isActive()) {
-                em.getTransaction().rollback();
-            }
-            throw e;
-        } finally {
-            em.close();
-        }
+    public void save(EntityManager em, TransactionHistory history) {
+        em.persist(history);
     }
 
-    public TransactionHistory findById(Long id) {
-        EntityManager em = HibernateUtil.getEntityManager();
-        try {
-            return em.find(TransactionHistory.class, id);
-        } finally {
-            em.close();
-        }
+    public TransactionHistory findById(EntityManager em, Long id) {
+        return em.find(TransactionHistory.class, id);
     }
 
-    public TransactionHistory findByTransactionId(Long transactionId) {
-        EntityManager em = HibernateUtil.getEntityManager();
+    public TransactionHistory findByTransactionId(EntityManager em, Long transactionId) {
         try {
             return em.createQuery(
                             "SELECT h FROM TransactionHistory h WHERE h.transaction.id = :transactionId",
-                            TransactionHistory.class)
+                            TransactionHistory.class
+                    )
                     .setParameter("transactionId", transactionId)
                     .getSingleResult();
-        } catch (Exception e) {
+
+        } catch (NoResultException e) {
             return null;
-        } finally {
-            em.close();
         }
     }
 
-    public List<TransactionHistory> findByWalletId(Long walletId) {
-        EntityManager em = HibernateUtil.getEntityManager();
-        try {
-            return em.createQuery(
-                            "SELECT h FROM TransactionHistory h WHERE h.wallet.id = :walletId",
-                            TransactionHistory.class)
-                    .setParameter("walletId", walletId)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
+    public List<TransactionHistory> findByWalletId(EntityManager em, Long walletId) {
+        return em.createQuery(
+                        "SELECT h FROM TransactionHistory h WHERE h.wallet.id = :walletId",
+                        TransactionHistory.class
+                )
+                .setParameter("walletId", walletId)
+                .getResultList();
     }
 }
 
