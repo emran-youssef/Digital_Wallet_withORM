@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "transactions")
@@ -30,11 +31,15 @@ public class Transaction {
     private TransactionStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "sender_wallet_id", nullable = false)
+    @JoinColumn(name = "sender_wallet_id", nullable = true)
     private Wallet sender;
 
     @ManyToOne
     @JoinColumn(name = "receiver_wallet_id", nullable = false)
     private Wallet receiver;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
 
 }

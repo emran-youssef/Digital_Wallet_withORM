@@ -1,5 +1,6 @@
 package service;
 
+import entities.User;
 import entities.Wallet;
 import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,18 @@ import java.time.LocalDateTime;
 public class WalletService {
 
     private final WalletRepository walletRepository;
+
+    public Wallet createWallet(EntityManager em, User user) {
+        Wallet wallet = Wallet.builder()
+                .balance(BigDecimal.ZERO)
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        walletRepository.save(em, wallet);
+        return wallet;
+    }
 
     public Wallet findWalletByUserId(EntityManager em, Long userId) {
 

@@ -7,6 +7,11 @@
 
     <persistence-unit name="digital-wallet" transaction-type="RESOURCE_LOCAL">
 
+        <class>entities.User</class>
+        <class>entities.Wallet</class>
+        <class>entities.Transaction</class>
+        <class>entities.TransactionHistory</class>
+
         <properties>
             <property name="jakarta.persistence.jdbc.driver"
                       value="com.mysql.cj.jdbc.Driver"/>
