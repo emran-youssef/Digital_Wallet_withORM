@@ -29,6 +29,7 @@ public class TransactionService {
 
             Wallet wallet = walletService.findWalletByUserId(em, userId);
             walletService.deposit(wallet, amount);
+            em.merge(wallet); // persist balance change
 
             Transaction transaction = Transaction.builder()
                     .amount(amount)
@@ -62,6 +63,8 @@ public class TransactionService {
             Wallet wallet = walletService.findWalletByUserId(em, userId);
             walletService.withdraw(wallet, amount);
 
+            em.merge(wallet); // persist the balance change
+
             Transaction transaction = Transaction.builder()
                     .amount(amount)
                     .type(TransactionType.WITHDRAW)
@@ -72,8 +75,10 @@ public class TransactionService {
                     .build();
 
             transactionRepository.save(em, transaction);
-
             em.getTransaction().commit();
+
+            transactionHistoryService.createHistory(transaction, wallet);
+
             return transaction;
 
         } catch (Exception e) {
@@ -99,6 +104,8 @@ public class TransactionService {
 
             walletService.withdraw(senderWallet, amount);
             walletService.deposit(receiverWallet, amount);
+            em.merge(senderWallet);   // persist balance change
+            em.merge(receiverWallet); // persist balance change
 
             Transaction transaction = Transaction.builder()
                     .amount(amount)
@@ -110,8 +117,11 @@ public class TransactionService {
                     .build();
 
             transactionRepository.save(em, transaction);
-
             em.getTransaction().commit();
+
+            transactionHistoryService.createHistory(transaction, senderWallet);
+            transactionHistoryService.createHistory(transaction, receiverWallet);
+
             return transaction;
 
         } catch (Exception e) {

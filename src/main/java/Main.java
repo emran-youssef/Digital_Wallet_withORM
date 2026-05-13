@@ -3,13 +3,54 @@ import entities.User;
 import entities.Wallet;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
+import menu.ConsoleMenu;
+import repositories.TransactionHistoryRepository;
+import repositories.TransactionRepository;
+import repositories.UserRepository;
+import repositories.WalletRepository;
+import service.TransactionHistoryService;
+import service.TransactionService;
+import service.UserService;
+import service.WalletService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class Main {
     public static void main(String[] args){
-        /*
+
+        // Repositories
+        UserRepository userRepo    = new UserRepository();
+        WalletRepository walletRepo  = new WalletRepository();
+        TransactionRepository txRepo      = new TransactionRepository();
+        TransactionHistoryRepository historyRepo = new TransactionHistoryRepository();
+
+
+        // Services
+        UserService userService    = new UserService(userRepo);
+        WalletService walletService  = new WalletService(walletRepo);
+        TransactionHistoryService historyService = new TransactionHistoryService(historyRepo);
+        TransactionService txService      = new TransactionService(walletService, txRepo, historyService);
+
+
+        // Launch
+        new ConsoleMenu(userService, walletService, txService, historyService).start();
+
+        // Cleanup
+        HibernateUtil.shutDown();
+
+
+    }
+
+}
+
+
+
+
+
+
+
+/*
         test code:
 
         EntityManager em = HibernateUtil.getEntityManager();
@@ -59,6 +100,3 @@ public class Main {
 
 
          */
-    }
-
-}
